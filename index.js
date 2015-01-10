@@ -46,7 +46,7 @@ noble.on('discover', function(peripheral) {
     data: { name: peripheral.advertisement.localName, uuid: peripheral.uuid } 
   }
 
-  if (peripheral_action && peripheral_action.peripheral_uuid == peripheral.uuid) {
+  if (peripheral_action && peripheral_action.serial_number == peripheral.uuid) {
     console.log("match uuid");
     noble.stopScanning();
     peripheral.connect();
@@ -140,6 +140,7 @@ noble.on('discover', function(peripheral) {
       //characteristics[characteristicIndex].broadcast(true);
       // characteristics[characteristicIndex].notify(true);
       // characteristics[characteristicIndex].discoverDescriptors();
+      peripheral.disconnect();
     });
 
 
@@ -158,11 +159,11 @@ noble.on('scanStop', function() {
 
 });
 
-socket.on('pi:action:ble:' + serial_number, function(data) {
-  console.log('write peripheral:' + peripheral.serial_number + " with data:" + data.data);
+socket.on('pi:action:bleWrite:' + serial_number, function(data) {
   peripheral_action = data;
   reScan = true;
   noble.stopScanning();
+  console.log('write peripheral:' + peripheral_action.serial_number + " with data:" + data.data);
 });
 
 socket.on('pi:action:bleReScan:' + serial_number, function(data) {
