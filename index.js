@@ -39,12 +39,12 @@ noble.on('discover', function(peripheral) {
   socket.emit("pi:ble", peripheral.advertisement.localName + "," + peripheral.uuid);
 });
 
-socketClient.on('connect', function() {
+socket.on('connect', function() {
   isConnectSocket = true;
   noble.startScanning();
 });
 
-socketClient.on('disconnect', function(){
+socket.on('disconnect', function(){
   isConnectSocket = false;
   noble.stopScanning();
 });
