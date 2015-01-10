@@ -191,7 +191,7 @@ socket.on('disconnect', function(){
 var writeFile = function (data) {
 
   var filePath = path.join(__dirname, '/data/') + 'SENSOR-ble' ;
-  fs.writeFile(filePath, data), function(err) {
+  fs.writeFile(filePath, data, function(err) {
       if(err) {
           console.log(err);
       } else {
