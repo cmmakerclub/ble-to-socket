@@ -50,10 +50,10 @@ noble.on('discover', function(peripheral) {
     console.log("match uuid");
     noble.stopScanning();
     peripheral.connect();
+    explore(peripheral);
   } else {
     socket.emit("pi:receive", sendData);  
   }
-
 });
 
 noble.on('scanStop', function() {
@@ -115,7 +115,7 @@ function explore(peripheral) {
       characteristics[characteristicIndex].on('write', function() {
         console.log('on -> characteristic write ');
 
-        // peripheral.disconnect();
+        peripheral.disconnect();
       });
 
       characteristics[characteristicIndex].on('broadcast', function(state) {
@@ -157,7 +157,7 @@ function explore(peripheral) {
       //characteristics[characteristicIndex].broadcast(true);
       // characteristics[characteristicIndex].notify(true);
       // characteristics[characteristicIndex].discoverDescriptors();
-      peripheral.disconnect();
+      //peripheral.disconnect();
     });
 
 
@@ -174,6 +174,7 @@ socket.on('pi:action:bleWrite:' + serial_number, function(data) {
 
 socket.on('pi:action:bleReScan:' + serial_number, function(data) {
   console.log('re scan');
+  peripheral_action = {};
   reScan = true;
   noble.stopScanning();
 });
