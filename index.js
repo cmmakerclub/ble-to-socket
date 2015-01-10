@@ -10,6 +10,12 @@ var serial_number = 'BBB';
 
 var isConnectSocket = false;
 
+var serial_number = 'BBB'; 
+// var domain = "http://localhost:9000/";
+var domain = "https://derconnect.herokuapp.com";
+
+socketClient = socketClient.connect(domain, { path: '/socket.io-client', query: "from=raspberry&serial_number=" + serial_number });
+
 noble.on('stateChange', function(state) {
 
   if (!isConnectSocket) {
