@@ -65,99 +65,105 @@ noble.on('scanStop', function() {
 
 });
 
+function explore(peripheral) {
 
-
-peripheral.on('connect', function() {
-  console.log('on -> connect');
-  this.updateRssi();
-});
-
-peripheral.on('disconnect', function() {
-  console.log('on -> disconnect');
-});
-
-peripheral.on('rssiUpdate', function(rssi) {
-  console.log('on -> RSSI update ' + rssi);
-  this.discoverServices(['ffe0']);
-});
-
-peripheral.on('servicesDiscover', function(services) {
-  console.log('on -> peripheral services discovered ' + services);
-
-
-  var serviceIndex = 0;
-
-  services[serviceIndex].on('includedServicesDiscover', function(includedServiceUuids) {
-    console.log('on -> service included services discovered ' + includedServiceUuids);
-    this.discoverCharacteristics(['ffe1']);
+  peripheral.on('connect', function() {
+    console.log('on -> connect');
+    this.updateRssi();
   });
 
-  services[serviceIndex].on('characteristicsDiscover', function(characteristics) {
-    console.log('on -> service characteristics discovered ' + characteristics);
+  peripheral.on('disconnect', function() {
+    console.log('on -> disconnect');
+    peripheral.removeAllListeners('connect');
+    peripheral.removeAllListeners('disconnect');
+    peripheral.removeAllListeners('rssiUpdate');
+    peripheral.removeAllListeners('servicesDiscover');
 
-      characteristics[0].write(new Buffer([0x32]), false, function(error) {
-        console.log('write 0x32');
-      });
-    var characteristicIndex = 0;
+  });
 
-    characteristics[characteristicIndex].on('read', function(data, isNotification) {
-      console.log('on -> characteristic read ' + data + ' ' + isNotification);
-      console.log(data);
+  peripheral.on('rssiUpdate', function(rssi) {
+    console.log('on -> RSSI update ' + rssi);
+    this.discoverServices(['ffe0']);
+  });
 
-      // peripheral.disconnect();
+  peripheral.on('servicesDiscover', function(services) {
+    console.log('on -> peripheral services discovered ' + services);
+
+
+    var serviceIndex = 0;
+
+    services[serviceIndex].on('includedServicesDiscover', function(includedServiceUuids) {
+      console.log('on -> service included services discovered ' + includedServiceUuids);
+      this.discoverCharacteristics(['ffe1']);
     });
 
-    characteristics[characteristicIndex].on('write', function() {
-      console.log('on -> characteristic write ');
+    services[serviceIndex].on('characteristicsDiscover', function(characteristics) {
+      console.log('on -> service characteristics discovered ' + characteristics);
 
-      // peripheral.disconnect();
-    });
+        characteristics[0].write(new Buffer([0x32]), false, function(error) {
+          console.log('write 0x32');
+        });
+      var characteristicIndex = 0;
 
-    characteristics[characteristicIndex].on('broadcast', function(state) {
-      console.log('on -> characteristic broadcast ' + state);
+      characteristics[characteristicIndex].on('read', function(data, isNotification) {
+        console.log('on -> characteristic read ' + data + ' ' + isNotification);
+        console.log(data);
 
-      // peripheral.disconnect();
-    });
-
-    characteristics[characteristicIndex].on('notify', function(state) {
-      console.log('on -> characteristic notify ' + state);
-
-      // peripheral.disconnect();
-    });
-
-    characteristics[characteristicIndex].on('descriptorsDiscover', function(descriptors) {
-      console.log('on -> descriptors discover ' + descriptors);
-
-      var descriptorIndex = 0;
-      console.log(descriptors);
-
-      //descriptors[descriptorIndex].on('valueRead', function(data) {
-      //  console.log('on -> descriptor value read ' + data);
-      //  console.log(data);
-      //  // peripheral.disconnect();
-      //});
-
-//        descriptors[descriptorIndex].on('valueWrite', function() {
-//         console.log('on -> descriptor value write ');
         // peripheral.disconnect();
-//      });
+      });
 
-      //descriptors[descriptorIndex].readValue();
-      //descriptors[descriptorIndex].writeValue(new Buffer([0]));
+      characteristics[characteristicIndex].on('write', function() {
+        console.log('on -> characteristic write ');
+
+        // peripheral.disconnect();
+      });
+
+      characteristics[characteristicIndex].on('broadcast', function(state) {
+        console.log('on -> characteristic broadcast ' + state);
+
+        // peripheral.disconnect();
+      });
+
+      characteristics[characteristicIndex].on('notify', function(state) {
+        console.log('on -> characteristic notify ' + state);
+
+        // peripheral.disconnect();
+      });
+
+      characteristics[characteristicIndex].on('descriptorsDiscover', function(descriptors) {
+        console.log('on -> descriptors discover ' + descriptors);
+
+        var descriptorIndex = 0;
+        console.log(descriptors);
+
+        //descriptors[descriptorIndex].on('valueRead', function(data) {
+        //  console.log('on -> descriptor value read ' + data);
+        //  console.log(data);
+        //  // peripheral.disconnect();
+        //});
+
+  //        descriptors[descriptorIndex].on('valueWrite', function() {
+  //         console.log('on -> descriptor value write ');
+          // peripheral.disconnect();
+  //      });
+
+        //descriptors[descriptorIndex].readValue();
+        //descriptors[descriptorIndex].writeValue(new Buffer([0]));
+      });
+
+
+      // characteristics[characteristicIndex].read();
+      characteristics[characteristicIndex].write(new Buffer(peripheral_action.data));
+      //characteristics[characteristicIndex].broadcast(true);
+      // characteristics[characteristicIndex].notify(true);
+      // characteristics[characteristicIndex].discoverDescriptors();
+      peripheral.disconnect();
     });
 
 
-    // characteristics[characteristicIndex].read();
-    characteristics[characteristicIndex].write(new Buffer(peripheral_action.data));
-    //characteristics[characteristicIndex].broadcast(true);
-    // characteristics[characteristicIndex].notify(true);
-    // characteristics[characteristicIndex].discoverDescriptors();
-    peripheral.disconnect();
+    services[serviceIndex].discoverIncludedServices();
   });
-
-
-  services[serviceIndex].discoverIncludedServices();
-});
+}
 
 socket.on('pi:action:bleWrite:' + serial_number, function(data) {
   peripheral_action = data;
