@@ -14,7 +14,7 @@ var serial_number = 'CCC';
 var peripheral_action = {};
 
 //var domain = "192.168.21.127";
-var domain = "http://192.168.21.127:9000";
+var domain = "http://192.168.0.104:9000";
 //var domain = "https://derconnect.herokuapp.com";
 
 //socket = socket.connect(domain, { path: '/socket.io-client'});
