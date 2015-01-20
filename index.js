@@ -6,9 +6,14 @@ var socket = require('socket.io-client');
 var path = require('path');
 var fs = require('fs');
 var noble = require('noble');
+var internalIp = require('internal-ip');
+var publicIp = require('public-ip');
 
 var isConnectSocket = false;
 var reScan = false;
+var isWrite = false;
+var isRead = false;
+
 var serial_number = 'CCC'; 
 
 var peripheral_action = {};
@@ -100,9 +105,9 @@ function explore(peripheral) {
     services[serviceIndex].on('characteristicsDiscover', function(characteristics) {
       console.log('on -> service characteristics discovered ' + characteristics);
 
-        characteristics[0].write(new Buffer([0x32]), false, function(error) {
-          console.log('write 0x32');
-        });
+        // characteristics[0].write(new Buffer([0x32]), false, function(error) {
+        //   console.log('write 0x32');
+        // });
       var characteristicIndex = 0;
 
       characteristics[characteristicIndex].on('read', function(data, isNotification) {
@@ -190,6 +195,34 @@ socket.on('disconnect', function(){
   isConnectSocket = false;
   noble.stopScanning();
 });
+
+
+setInterval(function() {
+
+  publicIp(function (err, ip) {
+
+    var sendIpData = 
+    {
+      type: "localIp",
+      // uuid: 'uuidBBB',
+      data: internalIp()
+    }
+
+    socketClient.emit('pi:receive', sendIpData)
+
+  });
+
+  var sendLocalIpData = 
+  {
+    type: "localIp",
+    // uuid: 'uuidBBB',
+    data: internalIp()
+  }
+
+  socketClient.emit('pi:receive', sendLocalIpData)
+
+
+}, 60000);
 
 
   ////////////////////////////
