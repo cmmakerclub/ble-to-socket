@@ -175,10 +175,48 @@ function explore(peripheral) {
 ///////////////////////
 ///////////////////////
 
-socket.on('pi:schedule:' + serial_number, function(data) {
-  console.log(JSON.stringify(data));
-});
+socket.on('pi:schedule:' + serial_number, function(pi) {
+  writeJSONFile(JSON.stringify(pi), 'schedule');
 
+
+  require('crontab').load(function(err, crontab) {
+    if (err) {
+      return console.error(err);
+    }
+
+    // TO DO in scdule
+    for (var i = 0; i < pi.devices.length; i++) {
+      var device = pi.devices[i];
+      device.schedule.forEach(function(schedule) {
+        console.log(device.uuid)
+        console.log(schedule)
+
+        // do cron tab
+        var command = 'ls -l';
+
+        crontab.remove({command:command});
+        crontab.create(command, '@reboot');
+
+        crontab.save(function(err, crontab) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log('save crontab')
+            console.log(crontab)
+
+          }
+        });
+
+      });
+    };
+
+  });
+  
+
+
+
+
+});
 
 ///////////////////////
 ///////////////////////
@@ -254,6 +292,21 @@ var writeJSONFile = function (data, name) {
   }); 
 }
 
+var readJSONFile = function (name, callback) {
+
+  var filePath = path.join(__dirname, '/data/') + name + '.json' ;
+  fs.readFile(file, 'utf8', function (err, data) {
+      if (err) {
+        console.log('Error: ' + err);
+        callback(err, null);
+      } else {
+        data = JSON.parse(data);
+        callback(null, data);
+      }
+
+      console.dir(data);
+    });
+}
 
 var writeFile = function (data) {
 

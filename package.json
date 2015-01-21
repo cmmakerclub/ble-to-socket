@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/cmmakerclub/ble-to-socket",
   "dependencies": {
+    "crontab": "^1.0.2",
     "express": "^4.10.7",
     "fs": "0.0.2",
     "http": "0.0.0",
