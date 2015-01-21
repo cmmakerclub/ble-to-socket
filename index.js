@@ -15,11 +15,12 @@ var isWrite = false;
 var isRead = false;
 
 var serial_number = 'CCC'; 
+// var serial_number = fs.readFileSync("/proc/cpuinfo").toString().split("Serial\t\t: ")[1].trim() || "dummy-not-pi";
 
 var peripheral_action = {};
 
 //var domain = "192.168.21.127";
-var domain = "http://192.168.0.104:9000";
+var domain = "http://localhost:9000";
 //var domain = "https://derconnect.herokuapp.com";
 
 //socket = socket.connect(domain, { path: '/socket.io-client'});
@@ -170,6 +171,19 @@ function explore(peripheral) {
   });
 }
 
+///////////////////////
+///////////////////////
+///////////////////////
+
+socket.on('pi:schedule:' + serial_number, function(data) {
+  console.log(JSON.stringify(data));
+});
+
+
+///////////////////////
+///////////////////////
+///////////////////////
+
 socket.on('pi:action:bleWrite:' + serial_number, function(data) {
   peripheral_action = data;
   reScan = true;
@@ -203,31 +217,43 @@ setInterval(function() {
 
     var sendIpData = 
     {
-      type: "localIp",
-      // uuid: 'uuidBBB',
+      type: "ip",
       data: internalIp()
     }
 
-    socketClient.emit('pi:receive', sendIpData)
+    socket.emit('pi:receive', sendIpData)
 
   });
 
   var sendLocalIpData = 
   {
     type: "localIp",
-    // uuid: 'uuidBBB',
     data: internalIp()
   }
 
-  socketClient.emit('pi:receive', sendLocalIpData)
+  socket.emit('pi:receive', sendLocalIpData)
 
 
-}, 60000);
+}, 5000);
 
 
   ////////////////////////////
  /////// write data /////////
 ////////////////////////////
+
+
+var writeJSONFile = function (data, name) {
+
+  var filePath = path.join(__dirname, '/data/') + name + '.json' ;
+  fs.writeFile(filePath, data, function(err) {
+      if(err) {
+          console.log(err);
+      } else {
+          console.log("The file was saved!");
+      }
+  }); 
+}
+
 
 var writeFile = function (data) {
 
